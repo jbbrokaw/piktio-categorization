@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 import numpy as np
+from scipy import ndimage
+import skimage
 
 
 def transparency_cleanup(image_data, threshhold=0.5):
@@ -53,6 +55,14 @@ def num_colors(image_data, threshhold=0.2):
 
     return len(color_dict)
 
+
+def num_regions(image_data):
+    """Return the number of identifiable regions in an image numpy array"""
+    if len(image_data.shape) > 2:
+        image_data = skimage.color.rgb2gray(image_data)
+    _, num_labels = ndimage.label(image_data)
+    return num_labels
+
 if __name__ == '__main__':
     from boto.s3.connection import OrdinaryCallingFormat
     import boto
@@ -71,3 +81,4 @@ if __name__ == '__main__':
         pikt_data = skimage.io.imread(virtual_file)
         virtual_file.seek(0)
         print num_colors(pikt_data, 0.25)
+        print num_regions(pikt_data)
